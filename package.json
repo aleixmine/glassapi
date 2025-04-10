@@ -1,0 +1,25 @@
+{
+  "name": "mod-glass-api",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-editor": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "aleixdev",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.3"
+  },
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "fflate": "^0.8.2",
+    "uuid": "^11.1.0"
+  }
+}

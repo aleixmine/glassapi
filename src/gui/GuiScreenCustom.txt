@@ -1,0 +1,41 @@
+import { GuiButton } from "./components/GuiButton";
+
+export class GuiScreenCustom {
+    toJava() {
+
+        ModAPI.hooks.methods["otp_Platform_getName"] = function (...args) {
+            return ModAPI.util.str(args[0].$meta.name ? args[0].$meta.name : "UndefinedClass");
+        }
+        const nmcg_GuiScreen = ModAPI.reflect.getClassById("net.minecraft.client.gui.GuiScreen");
+        const nmcg_GuiScreen_super = ModAPI.reflect.getSuper(ModAPI.reflect.getClassById("net.minecraft.client.gui.GuiScreen"), (x) => x.length === 1);
+        var nmcg_GuiScreen_drawScreen = nmcg_GuiScreen.methods.drawScreen.method;
+        function nmcg_GuiCustom(screen) {
+            nmcg_GuiScreen_super(this);
+            this.$parentScreen = screen;
+        }
+        ModAPI.reflect.prototypeStack(nmcg_GuiScreen, nmcg_GuiCustom);
+        nmcg_GuiCustom.prototype.$initGui = function () {
+            this.$buttonList.$add(ModAPI.reflect.getClassById("net.minecraft.client.gui.GuiButton").constructors.filter(c => { return c.length === 4 })[0](
+                423,
+                100,
+                100,
+                ModAPI.util.str("Click this!!!")
+            ));
+        }
+        nmcg_GuiCustom.prototype.$updateScreen = function () {}
+        nmcg_GuiCustom.prototype.$drawScreen = function ($mouseX, $mouseY, $renderPartialTicks) {
+            this.$drawDefaultBackground();
+            return nmcg_GuiScreen_drawScreen(this, $mouseX, $mouseY, $renderPartialTicks);
+        }
+        nmcg_GuiCustom.prototype.$actionPerformed = function ($button) {
+            var idProp = ModAPI.util.getNearestProperty($button, "$id");
+            if ($button && $button[idProp] === 423) {
+                console.log("Clicked!")
+                Minecraft.$displayGuiScreen(this.$parentScreen)
+            }
+        }
+
+        Minecraft.$displayGuiScreen(new nmcg_GuiCustom(Minecraft.$currentScreen));
+    }
+}
+
