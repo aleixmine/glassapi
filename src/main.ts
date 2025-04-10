@@ -18,6 +18,11 @@ import { WorldsFS } from "./fs/WorldsFS";
 import { GuiScreenType } from "./gui/GuiScreenType";
 import { GuiColor } from "./gui/GuiColor";
 import { CustomClickEvent } from "./text/event/CustomClickEvent";
+import { GuiManager } from "./gui/GuiManager";
+import { GuiButton } from "./gui/components/GuiButton";
+import { GuiLabel } from "./gui/components/GuiLabel";
+import { GuiTextField } from "./gui/components/GuiTextField";
+import { ComponentContainer } from "./gui/ComponentContainer";
 
 function isLikelyEnum(obj: any): boolean {
     if (typeof obj !== "object" || obj === null) return false;
@@ -91,7 +96,14 @@ export const GlassAPI = {
     },
     gui: {
         GuiScreenType,
-        GuiColor
+        GuiColor,
+        GuiManager,
+        ComponentContainer,
+        components: {
+            GuiButton,
+            GuiLabel,
+            GuiTextField
+        }
     },
     require: gimport
 };
