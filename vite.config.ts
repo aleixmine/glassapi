@@ -5,7 +5,7 @@ const VERSION = "1.0.0"
 export default {
   build: {
     lib: {
-      entry: ['src/GlassAPI.ts'],
+      entry: ['src/GlassAPIMod.ts'],
       name: 'mod',
       formats: ['iife'],
     },

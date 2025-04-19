@@ -1,15 +1,5 @@
-// ./text/
-import { Component } from "./text/Component";
-import { TextComponent } from "./text/TextComponent";
-import { TranslatableComponent } from "./text/TranslatableComponent";
+import * as textf from "./text/main";
 
-// ./text/format
-import { NamedTextColor } from "./text/format/NamedTextColor";
-import { TextDecoration } from "./text/format/TextDecoration";
-
-// ./text/event
-import { ClickEvent } from "./text/event/ClickEvent";
-import { HoverEvent } from "./text/event/HoverEvent";
 import { DatabaseManager } from "./db/DatabaseManager";
 import { IndexedDBStore } from "./db/IndexedDBStore";
 import { FileSystemDB } from "./fs/FileSystemDB";
@@ -17,12 +7,12 @@ import { ResourcePacksFS } from "./fs/ResourcePacksFS";
 import { WorldsFS } from "./fs/WorldsFS";
 import { GuiScreenType } from "./gui/GuiScreenType";
 import { GuiColor } from "./gui/GuiColor";
-import { CustomClickEvent } from "./text/event/CustomClickEvent";
 import { GuiManager } from "./gui/GuiManager";
 import { GuiButton } from "./gui/components/GuiButton";
 import { GuiLabel } from "./gui/components/GuiLabel";
 import { GuiTextField } from "./gui/components/GuiTextField";
 import { ComponentContainer } from "./gui/ComponentContainer";
+import { GlassLogger } from "./util/GlassLogger";
 
 function isLikelyEnum(obj: any): boolean {
     if (typeof obj !== "object" || obj === null) return false;
@@ -32,20 +22,20 @@ function isLikelyEnum(obj: any): boolean {
            keys.some(k => typeof obj[obj[k]] === "string" || typeof obj[obj[k]] === "number");
 }
 
-function exposeRecursively(obj: any, context: Record<string, any>) {
+function exposeRecursively(obj: any, context: Record<string, any>, prefix:string) {
     if (typeof obj !== "object" || obj === null) return;
 
     for (const [key, value] of Object.entries(obj)) {
-        if (context[key] !== undefined) continue; // evita sobrescribir
+        if (context[key] !== undefined) continue;
         if (typeof value === "object" && value !== null && !isLikelyEnum(value)) {
-            exposeRecursively(value, context);
+            exposeRecursively(value, context, prefix);
         } else {
-            context[key] = value;
+            context[prefix+key] = value;
         }
     }
 }
 
-function gimport(modulePath: string, context: Record<string, any> = globalThis) {
+function gimport(modulePath: string, context: Record<string, any> = globalThis, prefix:string="") {
     const parts = modulePath.split(".");
     let current: any = GlassAPI;
 
@@ -57,34 +47,15 @@ function gimport(modulePath: string, context: Record<string, any> = globalThis) 
     }
 
     if (typeof current === "object") {
-        exposeRecursively(current, context);
+        exposeRecursively(current, context, prefix);
     } else {
         const keyName = parts[parts.length - 1];
-        context[keyName] = current;
+        context[prefix+keyName] = current;
     }
 }
 
-export const GlassAPI = {
-    text: {
-        _internals: {
-            _customClickEvents: new Map<string, Function>()
-        },
-        registerCustomClickEvent: (event:CustomClickEvent)=>{
-            GlassAPI.text._internals._customClickEvents.set(event.id, event.action);
-        },
-        format: {
-            NamedTextColor,
-            TextDecoration
-        },
-        event: {
-            ClickEvent,
-            HoverEvent,
-            CustomClickEvent
-        },
-        Component,
-        TextComponent,
-        TranslatableComponent,
-    },
+export const GlassAPIF = {
+    text: textf.default,
     db: {
         DatabaseManager,
         IndexedDBStore,
@@ -105,5 +76,6 @@ export const GlassAPI = {
             GuiTextField
         }
     },
-    require: gimport
+    require: gimport,
+    logger: new GlassLogger({ appName: 'GlassAPI' })
 };

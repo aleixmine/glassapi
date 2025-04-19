@@ -7,7 +7,7 @@ const ChatComponentText = ModAPI.reflect.getClassById("net.minecraft.util.ChatCo
 export class TextComponent extends StyleComponent {
     content: string;
 
-    constructor(content: string) {
+    constructor(content: string = "") {
         super();
         this.content = content;
     }

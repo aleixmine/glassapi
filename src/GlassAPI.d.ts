@@ -1,5 +1,20 @@
 declare namespace GlassAPI {
+  const logger: {
+    log(content: any): void;
+    info(content: any): void;
+    warn(content: any): void;
+    error(content: any): void;
+  };
   namespace text {
+    namespace _internals {
+      const _customClickEvents: Map<string, Function>;
+      const _customHoverEvents: Map<string, Function>;
+      function initialize(): void;
+    }
+    namespace customEvents {
+      function registerCustomEvent(event: CustomClickEvent | CustomHoverEvent): void;
+      function unregisterCustomEvent(event_id:number): void;
+    }
     namespace format {
       class NamedTextColor {
         name: string;
@@ -33,26 +48,40 @@ declare namespace GlassAPI {
       }
     }
     namespace event {
+      class CustomClickEvent {
+        id: string;
+        action: Function;
+
+        constructor(action: Function,id: string=0);
+      }
+      class CustomHoverEvent {
+        id: string;
+        action: Function;
+
+        constructor(action: Function,id: string=0);
+      }
       class ClickEvent {
         name: string;
         value: string;
 
         constructor(name: string, value: string);
-        static OPEN_URL: ClickEvent;
-        static RUN_COMMAND: ClickEvent;
-        static SUGGEST_COMMAND: ClickEvent;
-        static EAGLER_PLUGIN_DOWNLOAD: ClickEvent;
-        static TWITCH_USER_INFO: ClickEvent;
+        static OPEN_URL(url: string): ClickEvent;
+        static RUN_COMMAND(command: string): ClickEvent;
+        static SUGGEST_COMMAND(command: string): ClickEvent;
+        static EAGLER_PLUGIN_DOWNLOAD(value: string): ClickEvent;
+        static TWITCH_USER_INFO(user: string): ClickEvent;
+        static RUN_CUSTOM(custom_event: string): ClickEvent;
       }
       class HoverEvent {
         name: string;
         value: string;
 
         constructor(name: string, value: string);
-        static SHOW_TEXT: HoverEvent;
-        static SHOW_ACHIEVEMENT: HoverEvent;
-        static SHOW_ITEM: HoverEvent;
-        static SHOW_ENTITY: HoverEvent;
+        static SHOW_TEXT(text:string): HoverEvent;
+        static SHOW_ACHIEVEMENT(achievement:string): HoverEvent;
+        static SHOW_ITEM(item:string): HoverEvent;
+        static SHOW_ENTITY(entity:string): HoverEvent;
+        static SHOW_CUSTOM(custom_event:string): HoverEvent;
       }
     }
     class StyleComponent {
@@ -73,6 +102,7 @@ declare namespace GlassAPI {
       decoration(decoration: format.TextDecoration, state: boolean): StyleComponent;
       append(styleComponent: TextComponent | TranslatableComponent): StyleComponent;
       getStyle(): any;
+      build():any;
     }
     class TextComponent extends StyleComponent {
       content: string;
@@ -88,10 +118,25 @@ declare namespace GlassAPI {
 
       build(): any;
     }
+    class SelectorComponent extends StyleComponent {
+      selector: string;
+
+      constructor(selector: string);
+
+      build(): any;
+    }
+    class ScoreComponent extends StyleComponent {
+      name: string;
+      objective: string;
+
+      constructor(name: string, objective: string);
+
+      build(): any;
+    }
     class Component {
       static text(content: string): TextComponent;
-      //static score(name: string, objective: string): ScoreComponent;
-      //static selector(selector: string): SelectorComponent;
+      static score(name: string, objective: string): ScoreComponent;
+      static selector(selector: string): SelectorComponent;
       static translatable(translationKey: string, ...args: string[]): TranslatableComponent;
     }
   }
@@ -506,3 +551,17 @@ declare namespace GlassAPI {
     }
   }
 }
+
+declare const GComponent: typeof GlassAPI.text.Component;
+declare const GTextComponent: typeof GlassAPI.text.TextComponent;
+declare const GTranslatableComponent: typeof GlassAPI.text.TranslatableComponent;
+declare const GSelectorComponent: typeof GlassAPI.text.SelectorComponent;
+declare const GScoreComponent: typeof GlassAPI.text.ScoreComponent;
+
+declare const GTextDecoration: typeof GlassAPI.text.format.TextDecoration;
+declare const GNamedTextColor: typeof GlassAPI.text.format.NamedTextColor;
+
+declare const GClickEvent: typeof GlassAPI.text.event.ClickEvent;
+declare const GCustomClickEvent: typeof GlassAPI.text.event.CustomClickEvent;
+declare const GCustomHoverEvent: typeof GlassAPI.text.event.CustomHoverEvent;
+declare const GHoverEvent: typeof GlassAPI.text.event.HoverEvent;

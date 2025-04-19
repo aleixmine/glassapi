@@ -968,7 +968,7 @@ declare namespace ModAPI {
        * @param {JavaObject} obj 
        * @see {@link https://eaglerforge.github.io/EaglerForgeInjector/docs/apidoc/utils.html} Util Documentation
        */
-      function wrap(obj: any): object;
+      function wrap(obj: any): Proxy<object>;
    }
   
   /**

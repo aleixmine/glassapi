@@ -9,4 +9,5 @@ export class HoverEvent {
     static SHOW_ACHIEVEMENT(value: string) { return new HoverEvent("show_achievement", value) }
     static SHOW_ITEM(value: string) { return new HoverEvent("show_item", value) }
     static SHOW_ENTITY(value: string) { return new HoverEvent("show_entity", value) }
+    static SHOW_CUSTOM(value: string) { return new HoverEvent("show_custom", value) }
 }

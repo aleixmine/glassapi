@@ -9,7 +9,7 @@ import { TextComponent } from "./TextComponent";
 import { TranslatableComponent } from "./TranslatableComponent";
 
 const JavaString = ModAPI.util.str;
-
+const JavaTrue = ModAPI.reflect.getClassById("java.lang.Boolean").staticVariables.TRUE;
 const ChatComponentText = ModAPI.reflect.getClassById("net.minecraft.util.ChatComponentText").constructors[0];
 const EnumChatFormatting = ModAPI.reflect.getClassById("net.minecraft.util.EnumChatFormatting").staticVariables;
 const ChatStyle = ModAPI.reflect.getClassById("net.minecraft.util.ChatStyle").constructors[0];
@@ -17,9 +17,10 @@ const ChatStyle = ModAPI.reflect.getClassById("net.minecraft.util.ChatStyle").co
 const ChatClickEvent = ModAPI.reflect.getClassById("net.minecraft.event.ClickEvent").constructors[0];
 const ClickEventAction = ModAPI.reflect.getClassById("net.minecraft.event.ClickEvent$Action");
 const ChatHoverEvent = ModAPI.reflect.getClassById("net.minecraft.event.HoverEvent").constructors[0];
-const HoverEventAction = ModAPI.reflect.getClassById("net.minecraft.event.HoverEvent$Action").staticVariables;
+const HoverEventAction = ModAPI.reflect.getClassById("net.minecraft.event.HoverEvent$Action");
 
 const ClickEventActionCustom = ClickEventAction.constructors[0](ModAPI.util.str("run_custom"),6,ModAPI.util.str("run_custom"),1);
+const HoverEventActionCustom = HoverEventAction.constructors[0](ModAPI.util.str("show_custom"),4,ModAPI.util.str("show_custom"),1);
 
 export class StyleComponent {
     siblings: (TextComponent | TranslatableComponent | ScoreComponent | SelectorComponent)[];
@@ -80,7 +81,8 @@ export class StyleComponent {
         this.event.hover = event;
         return this;
     }
-    append(styleComponent: TextComponent | TranslatableComponent | ScoreComponent | SelectorComponent) {
+    append(styleComponent: TextComponent | TranslatableComponent | ScoreComponent | SelectorComponent /*| string*/) {
+        //if (typeof styleComponent === "string") styleComponent = new TextComponent(styleComponent);
         this.siblings.push(styleComponent);
         return this;
     }
@@ -102,6 +104,7 @@ export class StyleComponent {
                 this.underlined(state);
                 break;
         }
+
         return this;
     }
 
@@ -109,13 +112,14 @@ export class StyleComponent {
         let messageStyle = ChatStyle();
         if (this.style.color) messageStyle.$color2 = EnumChatFormatting[this.style.color];
 
-        if (this.style.bold) messageStyle.$bold = 1;
-        if (this.style.italic) messageStyle.$italic = 1;
-        if (this.style.strikethrough) messageStyle.$strikethrough = 1;
-        if (this.style.underlined) messageStyle.$underlined = 1;
-        if (this.style.obfuscated) messageStyle.$obfuscated = 1;
+        if (this.style.bold) messageStyle.$bold = JavaTrue;
+        if (this.style.italic) messageStyle.$italic = JavaTrue;
+        if (this.style.strikethrough) messageStyle.$strikethrough = JavaTrue;
+        if (this.style.underlined) messageStyle.$underlined = JavaTrue;
+        if (this.style.obfuscated) messageStyle.$obfuscated = JavaTrue;
 
         if (this.event.insertion) messageStyle.$insertion = JavaString(this.event.insertion);
+        
         if (this.event.click) {
             let actionName=this.event.click.name.toUpperCase();
             let action=null;
@@ -126,7 +130,17 @@ export class StyleComponent {
             }
             messageStyle.$chatClickEvent = ChatClickEvent(action, JavaString(this.event.click.value))
         }
-        if (this.event.hover) messageStyle.$chatHoverEvent = ChatHoverEvent(HoverEventAction[this.event.hover.name.toUpperCase()], ChatComponentText(JavaString(this.event.hover.value)))
+
+        if (this.event.hover) {
+            let actionName=this.event.hover.name.toUpperCase();
+            let action=null;
+            if (actionName==="SHOW_CUSTOM") {
+                action=HoverEventActionCustom
+            } else {
+                action=HoverEventAction.staticVariables[actionName]
+            }
+            messageStyle.$chatHoverEvent = ChatHoverEvent(action, ChatComponentText(JavaString(this.event.hover.value)))
+        }
 
         return messageStyle;
     }
